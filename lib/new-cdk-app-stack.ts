@@ -1,4 +1,4 @@
-import { Stack, StackProps, RemovalPolicy } from "aws-cdk-lib";
+import { Stack, StackProps, RemovalPolicy, CfnOutput } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
@@ -37,12 +37,13 @@ export class NewCdkAppStack extends Stack {
       destinationBucket: siteBucket,
     });
 
-    new cdk.CfnOutput(this, "WebURL", {
+    // 出力情報（S3 WebサイトURLとAPIエンドポイント）
+    new CfnOutput(this, "WebURL", {
       value: siteBucket.bucketWebsiteUrl,
       description: "S3でホスティングされたWebサイトのURL",
     });
 
-    new cdk.CfnOutput(this, "ApiEndpoint", {
+    new CfnOutput(this, "ApiEndpoint", {
       value: api.url,
       description: "API GatewayのエンドポイントURL",
     });
