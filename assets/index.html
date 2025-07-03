@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>フォーム投稿</title>
+  <script>
+    async function handleSubmit(event) {
+      event.preventDefault();
+      const res = await fetch("https://<API_GATEWAY_URL>", {
+        method: "POST",
+      });
+      const msg = document.getElementById("message");
+      msg.textContent = "投稿されました！";
+      msg.style.display = "block";
+      setTimeout(() => msg.style.display = "none", 3000);
+    }
+  </script>
+</head>
+<body>
+  <h1>投稿フォーム</h1>
+  <form onsubmit="handleSubmit(event)">
+    <input type="text" placeholder="何か入力..." required />
+    <button type="submit">投稿</button>
+  </form>
+  <div id="message" style="display:none;color:green;">投稿されました！</div>
+</body>
+</html>
