@@ -49,6 +49,7 @@ export class NewCdkAppStack extends Stack {
       }],
     });
 
+
     /* ───────────────────────── ② S3 (完全プライベート) ───────────────────────── */
     const siteBucket = new s3.Bucket(this, "SiteBucket", {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,   // すべてブロック
@@ -56,6 +57,18 @@ export class NewCdkAppStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,                // サンプルなので削除許可
       autoDeleteObjects: true,
     });
+    const writeQuestionFunction = new lambda.Function(this, "WriteQuestionFunction", {
+      runtime: lambda.Runtime.NODEJS_18_X,
+      handler: "index.handler",
+      code: lambda.Code.fromAsset(path.join(__dirname, "../lambda/write-question")),
+      environment: {
+        BUCKET_NAME: siteBucket.bucketName,
+        FILE_NAME: "questions.jsonl",
+      },
+    });
+    siteBucket.grantReadWrite(writeQuestionFunction);
+    api.root.addMethod("POST", new apigateway.LambdaIntegration(writeQuestionFunction));
+
 
     /* ───────────────────────── ③ CloudFront + OAI ───────────────────────── */
     const oai = new cloudfront.OriginAccessIdentity(this, "SiteOAI");

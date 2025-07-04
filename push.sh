@@ -1,4 +1,4 @@
 #!/bin/bash
 git add .
-git commit -m "API Complete"
-git push origin main
+git commit -m "Save S3"
+git push origin save-post-to-s3
