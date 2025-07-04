@@ -32,12 +32,11 @@ export class NewCdkAppStack extends Stack {
     // });
     const siteBucket = new s3.Bucket(this, "SiteBucket", {
       websiteIndexDocument: "index.html",
-      publicReadAccess: true,
-      // blockPublicAccess: s3.BlockPublicAccess.NONE,  // 🔑 必須
+      publicReadAccess: true,                    // 全世界 GET 許可（バケットポリシー方式）
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS, // ✅ ポリシーは許可・ACL は拒否
       removalPolicy: RemovalPolicy.DESTROY,
-      autoDeleteObjects: true
+      autoDeleteObjects: true,
     });
-
 
     // index.html のデプロイ
     new s3deploy.BucketDeployment(this, "DeploySite", {
