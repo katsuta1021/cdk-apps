@@ -12,6 +12,9 @@
       e.preventDefault();
       const input = document.getElementById("input");
       const payload = { text: input.value };
+      const response = await fetch("https://4ycmnrdyqb.execute-api.us-east-1.amazonaws.com/prod/", {
+      method: "POST"
+    });
 
       try {
         const res = await fetch("https://REPLACE_WITH_API_ENDPOINT/", {
