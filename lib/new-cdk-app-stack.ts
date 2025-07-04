@@ -27,9 +27,11 @@ export class NewCdkAppStack extends Stack {
     const siteBucket = new s3.Bucket(this, "SiteBucket", {
       websiteIndexDocument: "index.html",
       publicReadAccess: true,
+      blockPublicAccess: s3.BlockPublicAccess.NONE,  // ← これがないと synth 時に失敗します
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true
     });
+
 
     // index.html のデプロイ
     new s3deploy.BucketDeployment(this, "DeploySite", {
