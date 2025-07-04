@@ -22,6 +22,12 @@ export class NewCdkAppStack extends Stack {
       handler: "handler.handler",
       code: lambda.Code.fromAsset(path.join(__dirname, "../lambda")),
     });
+    // Lambda関数 (write-html Lambda)
+    const writeHtmlLambda = new lambda.Function(this, "WriteHtmlFunction", {
+      runtime: lambda.Runtime.NODEJS_18_X,
+      handler: "index.handler",
+      code: lambda.Code.fromAsset(path.join(__dirname, "../lambda/write-html")),
+    });
 
     const api = new apigateway.RestApi(this, "SubmitApi", {
       restApiName: "Submit Service",
@@ -97,8 +103,23 @@ export class NewCdkAppStack extends Stack {
     siteBucket.grantPut(htmlGeneratorFunction);
 
     // カスタムリソースとして起動
-    new cr.CustomResource(this, "GenerateHtml", {
-      serviceToken: htmlGeneratorFunction.functionArn,
+    new cr.AwsCustomResource(this, "GenerateHtml", {
+      onCreate: {
+        service: "Lambda",
+        action: "invoke",
+        parameters: {
+          FunctionName: writeHtmlLambda.functionName,
+          InvocationType: "Event",
+          Payload: JSON.stringify({}),
+        },
+        physicalResourceId: cr.PhysicalResourceId.of("GenerateHtml"),
+      },
+      policy: cr.AwsCustomResourcePolicy.fromStatements([
+        new iam.PolicyStatement({
+          actions: ["lambda:InvokeFunction"],
+          resources: [writeHtmlLambda.functionArn],
+        }),
+      ]),
     });
 
 
