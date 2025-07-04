@@ -1,27 +1,52 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <title>フォーム投稿</title>
+  <style>
+    #message { display:none; margin-top:8px; }
+  </style>
+
   <script>
-    async function handleSubmit(event) {
-      event.preventDefault();
-      const res = await fetch("https://<API_GATEWAY_URL>", {
-        method: "POST",
-      });
+    async function handleSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById("input");
+      const payload = { text: input.value };
+
+      try {
+        const res = await fetch("https://REPLACE_WITH_API_ENDPOINT/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (res.ok) {
+          showMessage("投稿されました！", "green");
+          input.value = "";
+        } else {
+          showMessage("送信に失敗しました", "red");
+        }
+      } catch (err) {
+        showMessage("ネットワークエラー", "red");
+      }
+    }
+
+    function showMessage(text, color) {
       const msg = document.getElementById("message");
-      msg.textContent = "投稿されました！";
+      msg.textContent = text;
+      msg.style.color  = color;
       msg.style.display = "block";
-      setTimeout(() => msg.style.display = "none", 3000);
+      setTimeout(() => (msg.style.display = "none"), 3000);
     }
   </script>
 </head>
+
 <body>
   <h1>投稿フォーム</h1>
   <form onsubmit="handleSubmit(event)">
-    <input type="text" placeholder="何か入力..." required />
+    <input id="input" type="text" placeholder="何か入力..." required />
     <button type="submit">投稿</button>
   </form>
-  <div id="message" style="display:none;color:green;">投稿されました！</div>
+  <div id="message"></div>
 </body>
 </html>
