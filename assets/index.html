@@ -2,9 +2,9 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>フォーム投稿</title>
+  <title>投稿フォーム</title>
   <style>
-    #message { display:none; margin-top:8px; }
+    #message { display: none; margin-top: 8px; }
   </style>
 
   <script>
@@ -14,7 +14,7 @@
       const payload = { text: input.value };
 
       try {
-        const res = await fetch("https://4ycmnrdyqb.execute-api.us-east-1.amazonaws.com/prod/", {
+        const res = await fetch("__API_ENDPOINT__", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -34,7 +34,7 @@
     function showMessage(text, color) {
       const msg = document.getElementById("message");
       msg.textContent = text;
-      msg.style.color  = color;
+      msg.style.color = color;
       msg.style.display = "block";
       setTimeout(() => (msg.style.display = "none"), 3000);
     }

@@ -9,6 +9,8 @@ import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as origins    from "aws-cdk-lib/aws-cloudfront-origins";
 import * as lambda     from "aws-cdk-lib/aws-lambda";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
+import * as cr from "aws-cdk-lib/custom-resources";
+import * as iam from "aws-cdk-lib/aws-iam";
 
 export class NewCdkAppStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -25,7 +27,7 @@ export class NewCdkAppStack extends Stack {
       restApiName: "Submit Service",
     });
     api.root.addMethod("POST", new apigateway.LambdaIntegration(submitFunction));
-        api.root.addMethod("OPTIONS", new apigateway.MockIntegration({
+    api.root.addMethod("OPTIONS", new apigateway.MockIntegration({
       integrationResponses: [{
         statusCode: "200",
         responseParameters: {
@@ -78,6 +80,25 @@ export class NewCdkAppStack extends Stack {
       destinationBucket: siteBucket,
       distribution,              // アップロード後に CloudFront を自動パージ
       distributionPaths: ["/*"], // すべてのオブジェクトを無効化
+    });
+
+    // HTML生成・アップロードLambda
+    const htmlGeneratorFunction = new lambda.Function(this, "HtmlGeneratorFunction", {
+      runtime: lambda.Runtime.NODEJS_18_X,
+      handler: "index.handler",  // lambda/write-html/index.ts
+      code: lambda.Code.fromAsset(path.join(__dirname, "../lambda/write-html")),
+      environment: {
+        API_URL: api.url,
+        BUCKET_NAME: siteBucket.bucketName,
+      },
+    });
+
+    // HTML書き込み用のS3権限付与
+    siteBucket.grantPut(htmlGeneratorFunction);
+
+    // カスタムリソースとして起動
+    new cr.CustomResource(this, "GenerateHtml", {
+      serviceToken: htmlGeneratorFunction.functionArn,
     });
 
 
