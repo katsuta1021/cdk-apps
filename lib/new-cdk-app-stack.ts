@@ -33,7 +33,7 @@ export class NewCdkAppStack extends Stack {
     const siteBucket = new s3.Bucket(this, "SiteBucket", {
       websiteIndexDocument: "index.html",
       publicReadAccess: true,
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,  // 🔑 必須
+      // blockPublicAccess: s3.BlockPublicAccess.NONE,  // 🔑 必須
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true
     });
