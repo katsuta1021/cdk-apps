@@ -25,6 +25,29 @@ export class NewCdkAppStack extends Stack {
       restApiName: "Submit Service",
     });
     api.root.addMethod("POST", new apigateway.LambdaIntegration(submitFunction));
+        api.root.addMethod("OPTIONS", new apigateway.MockIntegration({
+      integrationResponses: [{
+        statusCode: "200",
+        responseParameters: {
+          "method.response.header.Access-Control-Allow-Headers": "'Content-Type'",
+          "method.response.header.Access-Control-Allow-Origin": "'*'",
+          "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'",
+        },
+      }],
+      passthroughBehavior: apigateway.PassthroughBehavior.NEVER,
+      requestTemplates: {
+        "application/json": "{\"statusCode\": 200}",
+      },
+    }), {
+      methodResponses: [{
+        statusCode: "200",
+        responseParameters: {
+          "method.response.header.Access-Control-Allow-Headers": true,
+          "method.response.header.Access-Control-Allow-Origin": true,
+          "method.response.header.Access-Control-Allow-Methods": true,
+        },
+      }],
+    });
 
     /* ───────────────────────── ② S3 (完全プライベート) ───────────────────────── */
     const siteBucket = new s3.Bucket(this, "SiteBucket", {
@@ -56,6 +79,7 @@ export class NewCdkAppStack extends Stack {
       distribution,              // アップロード後に CloudFront を自動パージ
       distributionPaths: ["/*"], // すべてのオブジェクトを無効化
     });
+
 
     /* ───────────────────────── ⑤ 出力値 ───────────────────────── */
     new CfnOutput(this, "WebURL", {
