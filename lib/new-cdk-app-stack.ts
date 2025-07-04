@@ -1,6 +1,5 @@
 import { Stack, StackProps, RemovalPolicy, CfnOutput } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { BlockPublicAccess } from "aws-cdk-lib/aws-s3";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
 import * as lambda from "aws-cdk-lib/aws-lambda";
@@ -28,11 +27,9 @@ export class NewCdkAppStack extends Stack {
     const siteBucket = new s3.Bucket(this, "SiteBucket", {
       websiteIndexDocument: "index.html",
       publicReadAccess: true,
-      blockPublicAccess: s3.BlockPublicAccess.NONE,  // ← これでエラー解消
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true
     });
-
 
     // index.html のデプロイ
     new s3deploy.BucketDeployment(this, "DeploySite", {
