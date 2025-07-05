@@ -2,7 +2,7 @@
   "name": "cdk-app",
   "version": "0.1.0",
   "bin": {
-    "new-cdk-app": "bin/cdk-app.js"
+    "new-cdk-app": "bin/new-cdk-app.js"
   },
   "scripts": {
     "build": "tsc",
