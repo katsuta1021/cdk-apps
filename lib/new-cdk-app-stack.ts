@@ -68,29 +68,28 @@ export class NewCdkAppStack extends Stack {
         ],
       }
     );
-    questionResource.addMethod("OPTIONS", new apigateway.MockIntegration({
-      integrationResponses: [{
-        statusCode: "200",
-        responseParameters: {
-          "method.response.header.Access-Control-Allow-Headers": "'Content-Type'",
-          "method.response.header.Access-Control-Allow-Origin": "'*'",
-          "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'",
-        },
-      }],
-      passthroughBehavior: apigateway.PassthroughBehavior.NEVER,
-      requestTemplates: {
-        "application/json": "{\"statusCode\": 200}",
-      },
-    }), {
-      methodResponses: [{
-        statusCode: "200",
-        responseParameters: {
-          "method.response.header.Access-Control-Allow-Headers": true,
-          "method.response.header.Access-Control-Allow-Origin": true,
-          "method.response.header.Access-Control-Allow-Methods": true,
-        },
-      }],
-    });
+    questionResource.addMethod("POST",
+      new apigateway.LambdaIntegration(writeQuestionFunction, {
+        integrationResponses: [{
+          statusCode: "200",
+          responseParameters: {
+            "method.response.header.Access-Control-Allow-Origin": "'*'",
+            "method.response.header.Access-Control-Allow-Headers": "'Content-Type'",
+          },
+        }],
+        passthroughBehavior: apigateway.PassthroughBehavior.WHEN_NO_MATCH,
+      }),
+      {
+        methodResponses: [{
+          statusCode: "200",
+          responseParameters: {
+            "method.response.header.Access-Control-Allow-Origin": true,
+            "method.response.header.Access-Control-Allow-Headers": true,
+          },
+        }],
+      }
+    );
+
 
     // ───────────────────────── S3 (静的サイトホスティング) ─────────────────────────
     const siteBucket = new s3.Bucket(this, "SiteBucket", {
