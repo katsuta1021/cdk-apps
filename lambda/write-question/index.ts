@@ -31,6 +31,11 @@ export const handler: Handler = async (event) => {
 
     return {
       statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Methods": "OPTIONS,POST"
+      },
       body: JSON.stringify({ message: "保存完了" }),
     };
   } catch (err: any) {
