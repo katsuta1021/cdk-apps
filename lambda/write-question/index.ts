@@ -1,9 +1,11 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { APIGatewayProxyHandler } from "aws-lambda";
+import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
+import { Handler } from "aws-lambda";
 
-const s3 = new S3Client({});
+// 環境変数からテーブル名を取得
+const tableName = process.env.TABLE_NAME!;
+const client = new DynamoDBClient({});
 
-export const handler: APIGatewayProxyHandler = async (event) => {
+export const handler: Handler = async (event) => {
   try {
     const body = JSON.parse(event.body || "{}");
     const text = body.text;
@@ -11,41 +13,31 @@ export const handler: APIGatewayProxyHandler = async (event) => {
     if (!text) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ message: "textフィールドが必要です" }),
+        body: JSON.stringify({ message: "text is required" }),
       };
     }
 
     const timestamp = new Date().toISOString();
-    const line = JSON.stringify({ timestamp, text }) + "\n";
 
-    const bucket = process.env.BUCKET_NAME!;
-    const key = process.env.FILE_NAME!;
+    const command = new PutItemCommand({
+      TableName: tableName,
+      Item: {
+        timestamp: { S: timestamp },
+        text: { S: text },
+      },
+    });
 
-    // 上書きではなく、S3の「append」っぽい処理を実装（最小構成では putObject）
-    await s3.send(new PutObjectCommand({
-      Bucket: bucket,
-      Key: key,
-      Body: line,
-      ContentType: "application/json",
-      // 追記ではなく上書きとなるが、ここでは append 風に実装（注意：競合注意）
-      // 本番では S3 → 既存読み込み → 追加 → PutObject が必要
-    }));
+    await client.send(command);
 
     return {
       statusCode: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "*",
-        "Access-Control-Allow-Methods": "OPTIONS,POST"
-      },
-      body: JSON.stringify({ message: "質問を保存しました" }),
+      body: JSON.stringify({ message: "保存完了" }),
     };
-
   } catch (err: any) {
-    console.error(err);
+    console.error("Error writing to DynamoDB:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: "サーバーエラー", error: err.message }),
+      body: JSON.stringify({ message: "保存に失敗しました" }),
     };
   }
 };
