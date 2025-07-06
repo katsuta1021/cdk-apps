@@ -17,9 +17,11 @@ export class NewCdkAppStack extends Stack {
 
     // ───────────────────────── DynamoDB ─────────────────────────
     const questionsTable = new dynamodb.Table(this, "QuestionsTable", {
-      partitionKey: { name: "timestamp", type: dynamodb.AttributeType.STRING },
+      partitionKey: { name: "sessionId", type: dynamodb.AttributeType.STRING },
+      sortKey: { name: "timestamp", type: dynamodb.AttributeType.STRING },
       removalPolicy: RemovalPolicy.DESTROY,
     });
+
 
     // ───────────────────────── Lambda (DynamoDB保存) ─────────────────────────
     const writeQuestionFunction = new lambda.Function(this, "WriteQuestionFunction", {

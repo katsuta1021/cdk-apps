@@ -8,6 +8,7 @@ const client = new DynamoDBClient({});
 export const handler: Handler = async (event) => {
   try {
     const body = JSON.parse(event.body || "{}");
+    const sessionId = body.sessionId;
     const text = body.text;
 
     if (!text) {
@@ -16,12 +17,19 @@ export const handler: Handler = async (event) => {
         body: JSON.stringify({ message: "text is required" }),
       };
     }
+    if (!sessionId || !text) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ message: "sessionId and text are required" }),
+      };
+    }
 
     const timestamp = new Date().toISOString();
 
     const command = new PutItemCommand({
       TableName: tableName,
       Item: {
+        sessionId: { S: sessionId },
         timestamp: { S: timestamp },
         text: { S: text },
       },
