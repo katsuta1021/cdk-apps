@@ -9,20 +9,24 @@ import {
   Alert,
   CircularProgress,
 } from "@mui/material";
-import sessions from "../public/sessions.json"; // ← 修正ポイント
 
 const API_ENDPOINT = "https://vwad4gy0t2.execute-api.us-east-1.amazonaws.com/prod/submit";
 
 export default function App() {
   const [text, setText] = useState("");
   const [sessionId, setSessionId] = useState("");
+  const [sessions, setSessions] = useState<string[]>([]);
   const [status, setStatus] = useState<null | { success: boolean; message: string }>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (sessions.length > 0) {
-      setSessionId(sessions[0]);
-    }
+    fetch("/sessions.json")
+      .then((res) => res.json())
+      .then((data) => {
+        setSessions(data);
+        if (data.length > 0) setSessionId(data[0]);
+      })
+      .catch((err) => console.error("セッション一覧の取得に失敗:", err));
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -74,9 +78,9 @@ export default function App() {
             value={sessionId}
             onChange={(e) => setSessionId(e.target.value)}
           >
-            {sessions.map((session) => (
-              <MenuItem key={session} value={session}>
-                {session}
+            {sessions.map((s) => (
+              <MenuItem key={s} value={s}>
+                {s}
               </MenuItem>
             ))}
           </TextField>
