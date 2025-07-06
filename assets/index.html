@@ -8,13 +8,27 @@
   </style>
 
   <script>
+    async function loadSessions() {
+      const res = await fetch("sessions.json");
+      const sessions = await res.json();
+
+      const select = document.getElementById("session");
+      sessions.forEach(session => {
+        const option = document.createElement("option");
+        option.value = session;
+        option.textContent = session;
+        select.appendChild(option);
+      });
+    }
+
     async function handleSubmit(e) {
       e.preventDefault();
       const input = document.getElementById("input");
       const session = document.getElementById("session");
+
       const payload = {
         text: input.value,
-        sessionId: session.value
+        sessionId: session.value,
       };
 
       try {
@@ -42,14 +56,20 @@
       msg.style.display = "block";
       setTimeout(() => (msg.style.display = "none"), 3000);
     }
+
+    window.addEventListener("DOMContentLoaded", loadSessions);
   </script>
 </head>
 
 <body>
   <h1>質問フォーム</h1>
   <form onsubmit="handleSubmit(event)">
-    <input id="session" type="text" placeholder="講義IDを入力してください..." required />
+    <label for="session">講座を選択:</label><br>
+    <select id="session" required>
+      <option value="" disabled selected>講座を選んでください</option>
+    </select>
     <br/><br/>
+
     <input id="input" type="text" placeholder="質問を入力してください..." required />
     <br/><br/>
     <button type="submit">投稿</button>
