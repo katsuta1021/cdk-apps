@@ -103,13 +103,6 @@ export class NewCdkAppStack extends Stack {
       },
     });
 
-    // new s3deploy.BucketDeployment(this, "DeploySite", {
-    //   sources: [s3deploy.Source.asset("./assets")],
-    //   destinationBucket: siteBucket,
-    //   distribution,
-    //   distributionPaths: ["/*"],
-    // });
-    // lib/new-cdk-app-stack.ts 内
     new s3deploy.BucketDeployment(this, "DeployReactSite", {
       sources: [s3deploy.Source.asset("./react-frontend/build")],
       destinationBucket: siteBucket,
