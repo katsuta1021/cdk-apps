@@ -9,14 +9,14 @@ import {
   Alert,
   CircularProgress,
 } from "@mui/material";
-import sessions from "./sessions.json";
+import sessions from "../public/sessions.json"; // ← 修正ポイント
 
 const API_ENDPOINT = "https://vwad4gy0t2.execute-api.us-east-1.amazonaws.com/prod/submit";
 
 export default function App() {
   const [text, setText] = useState("");
   const [sessionId, setSessionId] = useState("");
-  const [status, setStatus] = useState(null);
+  const [status, setStatus] = useState<null | { success: boolean; message: string }>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export default function App() {
     }
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setStatus(null);
