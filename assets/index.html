@@ -11,7 +11,11 @@
     async function handleSubmit(e) {
       e.preventDefault();
       const input = document.getElementById("input");
-      const payload = { text: input.value };
+      const session = document.getElementById("session");
+      const payload = {
+        text: input.value,
+        sessionId: session.value
+      };
 
       try {
         const res = await fetch("https://vwad4gy0t2.execute-api.us-east-1.amazonaws.com/prod/submit", {
@@ -44,7 +48,10 @@
 <body>
   <h1>質問フォーム</h1>
   <form onsubmit="handleSubmit(event)">
+    <input id="session" type="text" placeholder="講義IDを入力してください..." required />
+    <br/><br/>
     <input id="input" type="text" placeholder="質問を入力してください..." required />
+    <br/><br/>
     <button type="submit">投稿</button>
   </form>
   <div id="message"></div>
